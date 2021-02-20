@@ -94,35 +94,14 @@ class WundergroundStation extends HTMLElement {
   refresh() {
     //var element = this.$.container.querySelector("portal-tree-view");
     //element.parentNode.removeChild(element)
-    cache.get();
+    //cache.get();
 
     this.fetchWeather();
     this.create_inner_html();
   }
 
-  create_inner_html() {
-    this.innerHTML =
-      "<div class='wunderground_widget>" +
-      "<div class='wunderground_header'>" +
-      "<a href='https://www.wunderground.com/dashboard/pws/" +
-      this.station +
-      "' target='_blank'>Weather Underground</a>" +
-      "</div>" +
-      "<div class='wunderground_location'>" +
-      "<div class='wunderground_location-data'>" +
-      "<div class='wunderground_neighborhood'></div>" +
-      "<div class='wunderground_stationID'><a href='https://www.wunderground.com/dashboard/pws/" +
-      this.station +
-      "' target='_blank'>" +
-      this.station +
-      "</a>" +
-      "</div>" +
-      "<div class='wunderground_datetime'></div>" +
-      "</div>" +
-      "<div class='wunderground_refresh'><span class='icon spin'>Refresh</span></div>" +
-      "</div>" +
-      "<div class='wunderground_dashboard'>" +
-      "</div>";
+  getElement(class_name){
+    this.shadowRoot.getElementByClassName(class_name)[0];
   }
   async makeApiCall(url) {
     const response = await fetch(url);
