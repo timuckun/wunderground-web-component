@@ -54,12 +54,13 @@ wunderground_template.innerHTML = `
 class WundergroundStation extends HTMLElement {
   constructor(station, api_key, units) {
     super();
-    this.unit_translator = {
+   /* this.unit_translator = {
       imperial: "e",
       metric: "m",
       uk_hybrid: "h",
       metric_si: "s",
-    };
+    };*/
+    
     this.attachShadow({ mode: 'open' });
 
     //console.log(this);
