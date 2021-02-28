@@ -1,4 +1,8 @@
 export const Cache = {
+    cache_call: (key, expiryMinutes, func) => {
+         if this.get(key)
+       
+    }
     get: (key) => {
     var value = localStorage[key];
     if (!value) {

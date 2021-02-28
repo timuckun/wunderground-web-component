@@ -1,4 +1,4 @@
-import {fetchPwsObservation,fetchForecast } from './api.js';
+import {Api } from './api.js';
 import {Cache} from './cache.js';
 
 const wunderground_template = document.createElement("template");
@@ -85,7 +85,7 @@ class WundergroundStation extends HTMLElement {
   //   return await this.makeApiCall(url);
   // }
   async fetchWeather() {
-    const current = await fetchPwsObservation(
+    const current = await Api.fetchPwsObservation(
       this.station,
       this.units,
       this.api_key
@@ -93,7 +93,7 @@ class WundergroundStation extends HTMLElement {
 
     console.log(current);
 
-    const forecast = await fetchForecast(
+    const forecast = await Api.fetchForecast(
       current["lat"],
       current["lon"],
       this.units,
