@@ -1,8 +1,8 @@
 export const Cache = {
-    cache_call: (key, expiryMinutes, func) => {
-         if this.get(key)
-       
-    }
+
+    Infinity: 8640000000000000,
+    NegativeInfinity: -8640000000000000,
+    
     get: (key) => {
     var value = localStorage[key];
     if (!value) {
@@ -10,7 +10,7 @@ export const Cache = {
     }
     var model = JSON.parse(value);
     // I don't know why this would happen but maybe some other process?
-    if (model.payload == nul || model.expiry == null) {
+    if (model.payload == null || model.expiry == null) {
       return null;
     }
     var now = new Date();
@@ -37,5 +37,20 @@ export const Cache = {
       payload: value,
       expiry: expiryDate,
     });
-  }
+  },
+  cacheCall: (cache_key, expiryMinutes, func, args) => {
+    console.log(args);
+    //cache_key = station + "_observation";
+    console.log(this);
+    var retval = Cache.get(cache_key);
+    if (retval) {
+      return retval;
+    }
+
+    retval = func.apply(this,args);
+
+    Cache.set(cache_key, retval, expiryMinutes);
+    return retval;
+ },
+
 };

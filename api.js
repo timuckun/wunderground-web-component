@@ -1,14 +1,16 @@
 import { Cache } from "./cache.js";
 
-async function makeApiCall(url) {
-  const response = await fetch(url);
-  if (!response.ok) {
-    throw new Error("Network response was not ok");
-  }
-  return await response.json();
-}
+
 
 export const Api = {
+  async makeApiCall(url) {
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error("Network response was not ok");
+    }
+    return await response.json();
+  },
+  
   fetchPwsObservation: async function (station, units, api_key) {
     const url =
       "https://api.weather.com/v2/pws/observations/current?stationId=" +
@@ -17,7 +19,7 @@ export const Api = {
       units +
       "&apiKey=" +
       api_key;
-    const data = await makeApiCall(url);
+    const data = await Api.makeApiCall(url);
     return data.observations[0];
   },
 
@@ -32,6 +34,6 @@ export const Api = {
       "&apiKey=" +
       api_key;
 
-    return await makeApiCall(url);
+    return await Api.makeApiCall(url);
   },
 };

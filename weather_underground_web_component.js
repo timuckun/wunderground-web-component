@@ -1,5 +1,5 @@
-import {Api } from './api.js';
-import {Cache} from './cache.js';
+import { Api } from "./api.js";
+import { Cache } from "./cache.js";
 
 const wunderground_template = document.createElement("template");
 wunderground_template.innerHTML = `
@@ -40,8 +40,8 @@ class WundergroundStation extends HTMLElement {
     if (!["m", "e", "h", "s"].includes(this.units)) {
       throw "units attribute must be one of e (imperial), m (metric), h (uk_hybrid) or s (metric_si)";
     }
- 
-    this.locale=this.getAttribute('locale') || "en-NZ"
+
+    this.locale = this.getAttribute("locale") || "en-NZ";
     // Just in case people want to style multiple stations differently I guess.
     this.id = "station_" + this.station;
 
@@ -51,14 +51,10 @@ class WundergroundStation extends HTMLElement {
   } //connectedCallback
 
   refresh() {
- 
-    
     this.fetchWeather();
 
     // now that I have the observation and the forecast I can go ahead and populate more of the dib
   }
-
-  
 
   // async fetchPwsObservation(station, units, api_key) {
   //   const url =
@@ -85,6 +81,20 @@ class WundergroundStation extends HTMLElement {
   //   return await this.makeApiCall(url);
   // }
   async fetchWeather() {
+    const key = this.station + "_observation";
+    const station = this.station;
+    const units = this.units;
+    const api_key = this.api_key;
+
+    const obs = await Cache.cacheCall(
+      key,
+      Cache.NegativeInfinity,
+      Api.fetchPwsObservation,
+      [station, units, api_key]
+    );
+    console.log(obs);
+  }
+  async fetchWeather_old() {
     const current = await Api.fetchPwsObservation(
       this.station,
       this.units,
@@ -101,14 +111,14 @@ class WundergroundStation extends HTMLElement {
     );
 
     const datetime = new Date(current.obsTimeLocal);
-    this.setDateTime(datetime, this.locale)
- 
+    this.setDateTime(datetime, this.locale);
+
     const neighborhood = current.neighborhood;
     this.setStationLink(neighborhood);
   }
 
   setDateTime(datetime, locale = "en-NZ") {
-    const  options = {
+    const options = {
       weekday: "short",
       year: "numeric",
       month: "short",
@@ -117,9 +127,9 @@ class WundergroundStation extends HTMLElement {
       minute: "numeric",
     };
 
-    const datestring= datetime.toLocaleDateString(locale, options);
-    const div=this.getElement('.wunderground_datetime');
-    div.innerHTML=datestring;
+    const datestring = datetime.toLocaleDateString(locale, options);
+    const div = this.getElement(".wunderground_datetime");
+    div.innerHTML = datestring;
   }
 
   setStationLink(desc) {
@@ -132,7 +142,6 @@ class WundergroundStation extends HTMLElement {
     a.appendChild(txt);
     div.appendChild(a);
   }
-
 
   // UTIL FUNCTIONS
 
@@ -147,10 +156,6 @@ class WundergroundStation extends HTMLElement {
   //   }
   //   return await response.json();
   // }
-
-
- 
-  
 }
 
 customElements.define("wunderground-station", WundergroundStation);
