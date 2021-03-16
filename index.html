@@ -8,14 +8,36 @@
   <link rel="stylesheet" href="https://bootswatch.com/4/cerulean/bootstrap.min.css">
   -->
     <title>Weather Underground Web Component</title>
-    
-    <script src="weather_underground_web_component.js"></script>
     <script src="secrets.js"></script>
+    <script src="weather_underground_web_component.js" type='module'></script>
+
   </head>
   <body>1
     <script>
         console.log(secret_api_key);
     </script>
+
+<template id="wunderground-template">
+  <!-- The widget will look for elements with certain classes to fill
+       This is a minimal presentation with no styling
+  -->
+<div class='wunderground_widget'>
+  <div class='wunderground_header'>
+   
+  </div>
+  <div class='wunderground_location'>
+    <div class='wunderground_location-data'>
+      <div class='wunderground_neighborhood'></div>
+      <div class='wunderground_stationID'>
+      </div>
+      <div class='wunderground_datetime'></div>
+    </div>
+  </div>
+  <div class='wunderground_dashboard'>
+  </div>
+</div>
+</template>
+
     <wunderground-station
       class="wunderground"
       station="ITAURA99"
@@ -23,6 +45,7 @@
       locale="en-NZ"
       api_key_is_required_but_omitted="comes from the secrets.js file and is called secret_api_key. 
       Normally it would be hard coded here as 'api_key'"
+      template_id="wunderground-template"
     >
     </wunderground-station>
   </body>
