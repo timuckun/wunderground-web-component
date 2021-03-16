@@ -54,9 +54,9 @@ export function F_to_C  (degreee) {
     }
   }
 
-  export function lookup_units(units) {
-    const unit_map = {
+  export  const unit_dictionary = {
       m: {
+
         alt: "m",
         temp: "°C",
         press: "mb",
@@ -67,6 +67,7 @@ export function F_to_C  (degreee) {
         speed: "km",
         wave: "mtr",
         name: "metric",
+
       },
       s: {
         alt: "m",
@@ -104,6 +105,61 @@ export function F_to_C  (degreee) {
         wave: "ft",
         name: '"uk_hybrid"',
       },
-    }; //unit_map
-    return unit_map[units];
-  }
+    }
+
+		
+  // export function lookup_units(units) {
+  //   const unit_map = {
+  //     m: {
+
+  //       alt: "m",
+  //       temp: "°C",
+  //       press: "mb",
+  //       rain: "mm",
+  //       snow: "cm",
+  //       dist: "km",
+  //       vis: "km",
+  //       speed: "km",
+  //       wave: "mtr",
+  //       name: "metric",
+
+  //     },
+  //     s: {
+  //       alt: "m",
+  //       temp: "°C",
+  //       press: "mb",
+  //       rain: "mm",
+  //       snow: "cm",
+  //       dist: "m",
+  //       vis: "km",
+  //       speed: "m/s",
+  //       wave: "mtr",
+  //       name: "metric_si",
+  //     },
+  //     e: {
+  //       name: "imperial",
+  //       alt: "ft",
+  //       wave: "ft",
+  //       temp: "°F",
+  //       press: "hg",
+  //       rain: "in",
+  //       snow: "in",
+  //       dist: "mi",
+  //       vis: "mi",
+  //       speed: "MPH",
+  //     },
+  //     h: {
+  //       alt: "ft",
+  //       temp: "°C",
+  //       press: "mb",
+  //       rain: "mm",
+  //       snow: "cm",
+  //       dist: "mi",
+  //       vis: "km",
+  //       speed: "MPH",
+  //       wave: "ft",
+  //       name: '"uk_hybrid"',
+  //     },
+  //   }; //unit_map
+  //   return unit_map[units];
+  // }

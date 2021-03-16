@@ -1,51 +1,86 @@
 import { Api } from "./api.js";
 import { Cache } from "./cache.js";
+//import { unit_dictionary } from "./utils.js";
+import * as utils from './utils.js'
 
-const wunderground_template = document.createElement("template");
-wunderground_template.innerHTML = `
-      <div class='wunderground_widget'>
-				<div class='wunderground_header'>
-				 <!-- Possible link to weather underground? -->	
-        </div>
-				<div class='wunderground_location'>
-					<div class='wunderground_location-data'>
-						<div class='wunderground_neighborhood'></div>
-						<div class='wunderground_stationID'>
-            </div>
-						<div class='wunderground_datetime'></div>
-					</div>
-				</div>
-				<div class='wunderground_dashboard'>
-		    </div>
-			</div>`;
+// const wunderground_template = document.createElement("template");
+// wunderground_template.innerHTML = `
+//       <div class='wunderground_widget'>
+// 				<div class='wunderground_header'>
+// 				 <!-- Possible link to weather underground? -->	
+//         </div>
+// 				<div class='wunderground_location'>
+// 					<div class='wunderground_location-data'>
+// 						<div class='wunderground_neighborhood'></div>
+// 						<div class='wunderground_stationID'>
+//             </div>
+// 						<div class='wunderground_datetime'></div>
+// 					</div>
+// 				</div>
+// 				<div class='wunderground_dashboard'>
+// 		    </div>
+// 			</div>`;
 
 class WundergroundStation extends HTMLElement {
-  constructor(station, api_key, units) {
+  constructor() {
+  
     super();
-    this.attachShadow({ mode: "open" });
+    console.log(this.getAttribute('template_id'));
+    
+    
+
+    const station = this.getAttribute("station");
+    if (!station) {
+      throw "station attribute is required";
+    }
+
+    const api_key = this.getAttribute("api_key") || secret_api_key;
+    if (!api_key) {
+      throw "api_key attribute is required";
+    }
+
+    let units = this.getAttribute("units") || "m";
+    units=utils.unit_dictionary[units];
+    console.log(units);
+
+    if (!units) {
+      throw "units attribute must be one of e (imperial), m (metric), h (uk_hybrid) or s (metric_si)";
+    }
+   
+    
+    const locale = this.getAttribute("locale") || "en-NZ";
+    // Just in case people want to style multiple stations differently I guess.
+    //this.id = "station_" + this.station;
+
+    const template_id = this.getAttribute('template_id');
+
+    if (!template_id){
+      throw "template_id is required";
+    }
+    let template = document.getElementById(template_id);
+    if (!template) {
+      throw  "specified template " + template_id + " does not exist in the DOM "
+    }
+
+    let templateContent = template.content;
+    
+     console.log(templateContent);
+     this.attachShadow({ mode: "open" });
+     this.shadowRoot.appendChild(templateContent.cloneNode(true));
+     
+     this.data={ api_key, station, units, locale, }
+    
   } // constructor
 
   connectedCallback() {
     // console.log(this);
-    this.station = this.getAttribute("station");
-    if (!this.station) {
-      throw "station attribute is required";
-    }
-    this.api_key = this.getAttribute("api_key") || secret_api_key;
-    if (!this.api_key) {
-      throw "api_key attribute is required";
-    }
+    
+  console.log(this.template_id);
+    
 
-    this.units = this.getAttribute("units") || "m";
-    if (!["m", "e", "h", "s"].includes(this.units)) {
-      throw "units attribute must be one of e (imperial), m (metric), h (uk_hybrid) or s (metric_si)";
-    }
+    console.log(this.data);
 
-    this.locale = this.getAttribute("locale") || "en-NZ";
-    // Just in case people want to style multiple stations differently I guess.
-    this.id = "station_" + this.station;
-
-    this.shadowRoot.appendChild(wunderground_template.content.cloneNode(true));
+    //this.shadowRoot.appendChild(wunderground_template.content.cloneNode(true));
 
     this.refresh();
   } //connectedCallback
@@ -86,7 +121,7 @@ class WundergroundStation extends HTMLElement {
     const units = this.units;
     const api_key = this.api_key;
 
-    const obs = await Cache.cacheCall(
+    const obs = await Cache.memoize(
       key,
       Cache.NegativeInfinity,
       Api.fetchPwsObservation,

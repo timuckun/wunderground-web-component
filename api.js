@@ -1,7 +1,3 @@
-import { Cache } from "./cache.js";
-
-
-
 export const Api = {
   async makeApiCall(url) {
     const response = await fetch(url);
@@ -10,7 +6,7 @@ export const Api = {
     }
     return await response.json();
   },
-  
+
   fetchPwsObservation: async function (station, units, api_key) {
     const url =
       "https://api.weather.com/v2/pws/observations/current?stationId=" +
