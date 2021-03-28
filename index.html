@@ -1,58 +1,102 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang=en>
   <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <meta charset=UTF-8 />
+    <meta name=viewport content=width=device-width, initial-scale=1.0 />
+    <meta http-equiv=X-UA-Compatible content=ie=edge />
     <!-- 
-  <link rel="stylesheet" href="https://bootswatch.com/4/cerulean/bootstrap.min.css">
+  <link rel=stylesheet href=https://bootswatch.com/4/cerulean/bootstrap.min.css>
   -->
     <title>Weather Underground Web Component</title>
-    <script src="secrets.js"></script>
-    <script src="weather_underground_web_component.js" type='module'></script>
-
+    <script src=secrets.js></script>
+    <script src=weather_underground_web_component.js type=module></script>
   </head>
   <body>
     <script>
-        console.log(secret_api_key);
+      console.log(secret_api_key);
     </script>
 
-<template id="wunderground-template">
-  <!-- The widget will look for elements with certain classes to fill
+    <template id=wunderground-template_2>
+      <!-- The widget will look for elements with certain classes to fill
        This is a minimal presentation with no styling
   -->
-<div class='wunderground_widget'>
-  <div class='wunderground_header'>
-   
-  </div>
-  <div class='wunderground_location'>
-    <div class='wunderground_location-data'>
-      <div class='wunderground_neighborhood'></div>
-      <div class='wunderground_stationID'>
+      <div class=wunderground_widget>
+        <div class=wunderground_header></div>
+        <div class=wunderground_location>
+          <div class=wunderground_location-data>
+            <div class=wunderground_neighborhood></div>
+            <div class=wunderground_stationID></div>
+            <div class=wunderground_datetime></div>
+          </div>
+        </div>
+        <div class=wunderground_dashboard></div>
       </div>
-      <div class='wunderground_datetime'></div>
+    </template>
+
+  <template id=wunderground-template>
+    <div class='wunderground_widget unit-settings.units'>
+      <div class='wunderground_header'>
+        <a href='https://www.wunderground.com/dashboard/pws/settings.station' target='_blank'>Weather Underground</a>
+      </div>
+      <div class='wunderground_location'>
+        <div class='wunderground_location-data'>
+          <div class='wunderground_neighborhood'></div>
+          <div class='wunderground_stationID'>
+            <a href='https://www.wunderground.com/dashboard/pws/settings.station' target='_blank'>settings.station</a></div>
+          <div class='wunderground_datetime'></div>
+        </div>
+        <div class='wunderground_refresh'><span class='icon spin'>Refresh</span></div>
+      </div>
+      <div class='wunderground_dashboard'>
+        <div class='wunderground_temp_wrapper'>
+          <svg id='wunderground_temp' class='wunderground_temp' xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' version='1.1' aria-labelledby='wunderground_temp_title wunderground_temp_description'>
+            <title id='wunderground_temp_title'>Tempurature</title>
+            <desc id='wunderground_temp_description'>Hi: N/A | Lo: N/A <br/>Current: N/A <br/>Feels Like: N/A</desc>
+            <circle cx='50%' cy='50%' r='48%'></circle>
+            <text class='wunderground_hilo' x='50%' y='23%' preserveAspectRatio='xMidYMid meet' dominant-baseline='middle'  text-anchor='middle' font-size='10'>
+              <tspan class='wunderground_hi'>--</tspan><tspan class='wunderground_degree'>units['temp']</tspan>
+              <tspan dy='-1' class='wunderground_separator'> | </tspan>
+              <tspan dy='1' class='wunderground_lo'>--</tspan><tspan class='wunderground_degree'>units['temp']</tspan>
+            </text>
+            <text class='wunderground_current' x='50%' y='50%' preserveAspectRatio='xMidYMid meet' dominant-baseline='middle'  text-anchor='middle' font-size='30'>
+              <tspan>--</tspan><tspan class='wunderground_degree' font-size='50%' dy='-4'>units['temp']</tspan>
+            </text>
+            <text class='wunderground_feels-like' x='50%' y='75%' preserveAspectRatio='xMidYMid meet' dominant-baseline='middle'  text-anchor='middle' font-size='10'>
+              <tspan class='wunderground_like-text'>LIKE </tspan>
+              <tspan class='wunderground_like'>--</tspan><tspan class='wunderground_degree'>units['temp']</tspan>
+            </text>
+          </svg>
+        </div>
+        <div class='wunderground_icon_wrapper'></div>
+        <div class='wunderground_wind_wrapper'>
+          <svg id='wunderground_wind' class='wunderground_wind' xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' version='1.1' aria-labelledby='wunderground_wind_title wunderground_wind_description'>
+            <title id='wunderground_wind_title'>Wind</title>
+            <desc id='wunderground_wind_description'>N/A with N/A gusts out of the N/A</desc>
+            <circle cx='50' cy='45' r='40%'></circle>
+            <polygon class='wunderground_direction' points='50 15,57 0, 43 0' transform='rotate(0,50 45)'/>
+            <text x='50%' y='25%' preserveAspectRatio='xMidYMid meet' dominant-baseline='middle'  text-anchor='middle' font-size='10'>N</text>
+            <text class='wunderground_speed' x='50%' y='55%' preserveAspectRatio='xMidYMid meet' dominant-baseline='middle'  text-anchor='middle' font-size='30'>--</text>
+            <text x='50%' y='95%' preserveAspectRatio='xMidYMid meet' dominant-baseline='middle'  text-anchor='middle' font-size='10'>
+              <tspan>Gusts </tspan><tspan class='wunderground_gusts'>--</tspan><tspan class='wunderground_wind-measure'> units['speed']</tspan>
+            </text>
+          </svg>
+        </div>
+      </div>
     </div>
-  </div>
-  <div class='wunderground_dashboard'>
-  </div>
-</div>
-</template>
+  </template>
+
 
     <wunderground-station
-      class="wunderground"
-      station="ITAURA99"
-      units="m"
-      locale="en-NZ"
-      api_key_is_required_but_omitted="comes from the secrets.js file and is called secret_api_key. 
-      Normally it would be hard coded here as 'api_key'"
-      template_id="wunderground-template"
+      class=wunderground
+      station=ITAURA99
+      units=m
+      locale=en-NZ
+      api_key_is_required_but_omitted=comes from the secrets.js file and is called secret_api_key. 
+      Normally it would be hard coded here as 'api_key'
+      template_id=wunderground-template
     >
     </wunderground-station>
+
+   
   </body>
-</html>
-
-<script>
-    
-
-</script>
 </html>

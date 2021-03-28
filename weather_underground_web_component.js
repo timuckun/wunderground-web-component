@@ -2,7 +2,7 @@ import { Api } from "./api.js";
 import { Cache } from "./cache.js";
 //import { unit_dictionary } from "./utils.js";
 import * as utils from './utils.js'
-
+import {T} from "./test.js"
 // const wunderground_template = document.createElement("template");
 // wunderground_template.innerHTML = `
 //       <div class='wunderground_widget'>
@@ -39,11 +39,11 @@ class WundergroundStation extends HTMLElement {
       throw "api_key attribute is required";
     }
 
-    let units = this.getAttribute("units") || "m";
-    units=utils.unit_dictionary[units];
+    const units = this.getAttribute("units") || "m";
+    const measure_units=utils.unit_dictionary[units];
     console.log(units);
 
-    if (!units) {
+    if (!measure_units) {
       throw "units attribute must be one of e (imperial), m (metric), h (uk_hybrid) or s (metric_si)";
     }
    
@@ -69,6 +69,11 @@ class WundergroundStation extends HTMLElement {
      this.shadowRoot.appendChild(templateContent.cloneNode(true));
      
      this.data={ api_key, station, units, locale, }
+     this.api_key=api_key;
+     this.station=station;
+     this.units=units;
+     this.locale=locale;
+     this.measure_units=measure_units;
     
   } // constructor
 
@@ -86,6 +91,9 @@ class WundergroundStation extends HTMLElement {
   } //connectedCallback
 
   refresh() {
+
+    //T.test();
+
     this.fetchWeather();
 
     // now that I have the observation and the forecast I can go ahead and populate more of the dib
@@ -124,8 +132,10 @@ class WundergroundStation extends HTMLElement {
     const obs = await Cache.memoize(
       key,
       Cache.NegativeInfinity,
-      Api.fetchPwsObservation,
-      [station, units, api_key]
+      ()=>{
+        console.log(station);
+        Api.fetchPwsObservation(station, units, api_key);
+      }
     );
     console.log(obs);
   }
@@ -138,18 +148,18 @@ class WundergroundStation extends HTMLElement {
 
     console.log(current);
 
-    const forecast = await Api.fetchForecast(
-      current["lat"],
-      current["lon"],
-      this.units,
-      this.api_key
-    );
+    // const forecast = await Api.fetchForecast(
+    //   current["lat"],
+    //   current["lon"],
+    //   this.units,
+    //   this.api_key
+    // );
 
-    const datetime = new Date(current.obsTimeLocal);
-    this.setDateTime(datetime, this.locale);
+    // const datetime = new Date(current.obsTimeLocal);
+    // this.setDateTime(datetime, this.locale);
 
-    const neighborhood = current.neighborhood;
-    this.setStationLink(neighborhood);
+    // const neighborhood = current.neighborhood;
+    // this.setStationLink(neighborhood);
   }
 
   setDateTime(datetime, locale = "en-NZ") {

@@ -31,7 +31,21 @@ export const Cache = {
       expiry: expiryDate,
     });
   },
-  memoize: (cache_key, expiryMinutes, func, args) => {
+  memoize: (cache_key, expiryMinutes, func) => {
+    //console.log(args);
+    //cache_key = station + "_observation";
+  
+    let retval = this.get(cache_key);
+    if (retval) {
+      return retval;
+    }
+
+    retval = func();
+    console.log(retval);
+    this.set(cache_key, retval, expiryMinutes);
+    return retval;
+  },
+  memoize_2: (cache_key, expiryMinutes, func, args) => {
     console.log(args);
     //cache_key = station + "_observation";
     console.log(this);

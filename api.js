@@ -1,5 +1,8 @@
+
+
 export const Api = {
-  async makeApiCall(url) {
+
+   async makeApiCall(url) {
     const response = await fetch(url);
     if (!response.ok) {
       throw new Error("Network response was not ok");
@@ -7,7 +10,7 @@ export const Api = {
     return await response.json();
   },
 
-  fetchPwsObservation: async function (station, units, api_key) {
+  async fetchPwsObservation (station, units, api_key) {
     const url =
       "https://api.weather.com/v2/pws/observations/current?stationId=" +
       station +
@@ -15,7 +18,7 @@ export const Api = {
       units +
       "&apiKey=" +
       api_key;
-    const data = await Api.makeApiCall(url);
+    const data = await this.makeApiCall(url);
     return data.observations[0];
   },
 
@@ -30,6 +33,30 @@ export const Api = {
       "&apiKey=" +
       api_key;
 
-    return await Api.makeApiCall(url);
+    return await this.makeApiCall(url);
   },
+  searchNearestAirpot: async function(lat, lon, api_key){
+    const url =
+    "https://api.weather.com/v3/location/near?geocode=" +
+    lat +
+    "," +
+    lon +
+    "&format=json&lproduct=airport&apiKey=" +
+    api_key;
+    return await this.makeApiCall(url);
+  },
+
+
+// Search Airport by Geocode: Required Parameters: geocode, format, product, apiKey
+// https://api.weather.com/v3/location/near?geocode=33.74,-84.39&product=airport&format=json&apiKey=yourApiKey
+// Search Observation by Geocode: Required Parameters: geocode, format, product, apiKey 
+// https://api.weather.com/v3/location/near?geocode=33.74,-84.39&product=observation&format=json&apiKey=yourApiKey
+// Search PWS by Geocode: Required Parameters: geocode, format, product, apiKey 
+// https://api.weather.com/v3/location/near?geocode=33.74,-84.39&product=pws&format=json&apiKey=yourApiKey
+// Search Ski Resort by Geocode: Required Parameters: geocode, format, product, apiKey
+// https://api.weather.com/v3/location/near?geocode=33.74,-84.39&product=ski&format=json&apiKey=yourApiKey
+
+
+
+
 };
