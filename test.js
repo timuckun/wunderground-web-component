@@ -1,3 +1,4 @@
+
 export const T ={
     x: "x",
     y: 1,
@@ -11,4 +12,10 @@ export const T ={
     async test(){
         await this.f()
     }
+}
+
+export function Testfunc(){
+   let x=10;
+   
+
 }

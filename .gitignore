@@ -1,4 +1,5 @@
 # Logs
+.history
 secrets.js
 logs
 *.log
