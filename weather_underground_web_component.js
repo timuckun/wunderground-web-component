@@ -1,33 +1,14 @@
-import { Api } from "./api.js";
-import { Cache } from "./cache.js";
+import * as Api from "./api.js";
+import * as Cache from "./cache.js";
 //import { unit_dictionary } from "./utils.js";
-import * as utils from './utils.js'
-import {T} from "./test.js"
-// const wunderground_template = document.createElement("template");
-// wunderground_template.innerHTML = `
-//       <div class='wunderground_widget'>
-// 				<div class='wunderground_header'>
-// 				 <!-- Possible link to weather underground? -->	
-//         </div>
-// 				<div class='wunderground_location'>
-// 					<div class='wunderground_location-data'>
-// 						<div class='wunderground_neighborhood'></div>
-// 						<div class='wunderground_stationID'>
-//             </div>
-// 						<div class='wunderground_datetime'></div>
-// 					</div>
-// 				</div>
-// 				<div class='wunderground_dashboard'>
-// 		    </div>
-// 			</div>`;
+import * as Utils from "./utils.js";
+import * as Template from "./template.js";
+
+import { T } from "./test.js";
 
 class WundergroundStation extends HTMLElement {
   constructor() {
-  
     super();
-    console.log(this.getAttribute('template_id'));
-    
-    
 
     const station = this.getAttribute("station");
     if (!station) {
@@ -40,48 +21,43 @@ class WundergroundStation extends HTMLElement {
     }
 
     const units = this.getAttribute("units") || "m";
-    const measure_units=utils.unit_dictionary[units];
-    console.log(units);
+    const measure_units = Utils.unit_dictionary[units];
 
     if (!measure_units) {
       throw "units attribute must be one of e (imperial), m (metric), h (uk_hybrid) or s (metric_si)";
     }
-   
-    
+
+    measure_units.abbrev = units;
     const locale = this.getAttribute("locale") || "en-NZ";
     // Just in case people want to style multiple stations differently I guess.
     //this.id = "station_" + this.station;
 
-    const template_id = this.getAttribute('template_id');
+    const template_id = this.getAttribute("template_id");
 
-    if (!template_id){
+    if (!template_id) {
       throw "template_id is required";
     }
     let template = document.getElementById(template_id);
     if (!template) {
-      throw  "specified template " + template_id + " does not exist in the DOM "
+      throw "specified template " + template_id + " does not exist in the DOM ";
     }
+    this.template = template;
+    this.attachShadow({ mode: "open" });
 
-    let templateContent = template.content;
-    
-     console.log(templateContent);
-     this.attachShadow({ mode: "open" });
-     this.shadowRoot.appendChild(templateContent.cloneNode(true));
-     
-     this.data={ api_key, station, units, locale, }
-     this.api_key=api_key;
-     this.station=station;
-     this.units=units;
-     this.locale=locale;
-     this.measure_units=measure_units;
-    
+    this.templateContent = template.content;
+    this.data = { api_key, station, units, locale };
+    this.api_key = api_key;
+    this.station = station;
+
+    this.units = measure_units;
+    this.locale = locale;
+    this.measure_units = measure_units;
   } // constructor
 
   connectedCallback() {
     // console.log(this);
-    
-  console.log(this.template_id);
-    
+
+    console.log(this.template_id);
 
     console.log(this.data);
 
@@ -90,12 +66,37 @@ class WundergroundStation extends HTMLElement {
     this.refresh();
   } //connectedCallback
 
+   render_template(template) {
+    var ex = /{{(.+?)}}/;
+    while (template.match(ex)) {
+      const match = template.match(ex);
+      const value = eval('this.' + match[1])
+      if (value){
+      template = template.replace(match[0], value);
+      }else{
+        template= template.replace(match[0], "'" + match[1] + "' is not defined")
+      }
+    }
+    return template;
+  }
+
+  
   refresh() {
-
     //T.test();
+    let templateContent = this.templateContent;
 
-    this.fetchWeather();
+    console.log(templateContent);
+    console.log(this.template.innerHTML);
+    templateContent = this.template.innerHTML;
 
+    //this.fetchWeather();
+  // templateContent = Template.render(templateContent, this);
+    templateContent=this.render_template(templateContent);
+
+    console.log(templateContent);
+
+    //this.shadowRoot.appendChild(templateContent.cloneNode(true));
+    this.shadowRoot.innerHTML = templateContent;
     // now that I have the observation and the forecast I can go ahead and populate more of the dib
   }
 
@@ -129,14 +130,10 @@ class WundergroundStation extends HTMLElement {
     const units = this.units;
     const api_key = this.api_key;
 
-    const obs = await Cache.memoize(
-      key,
-      Cache.NegativeInfinity,
-      ()=>{
-        console.log(station);
-        Api.fetchPwsObservation(station, units, api_key);
-      }
-    );
+    const obs = await Cache.memoize(key, Cache.NegativeInfinity, () => {
+      console.log(station);
+      Api.fetchPwsObservation(station, units, api_key);
+    });
     console.log(obs);
   }
   async fetchWeather_old() {
