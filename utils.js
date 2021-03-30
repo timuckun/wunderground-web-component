@@ -67,7 +67,6 @@ export function F_to_C  (degreee) {
         speed: "km",
         wave: "mtr",
         name: "metric",
-
       },
       s: {
         alt: "m",
