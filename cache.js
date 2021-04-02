@@ -27,25 +27,38 @@ export function get(key) {
 }
 
 export function set(key, value, expirySeconds) {
+  console.log("set");
   const expiryDate = new Date();
  
   expiryDate.setSeconds(expiryDate.getSeconds() + expirySeconds);
-
-  localStorage[key] = JSON.stringify({
+  console.log(expiryDate);
+  let str =JSON.stringify({
     payload: value,
     expiry: expiryDate,
-  });
+  })
+  console.log(str);
+  localStorage[key] = str;
 }
 export function memoize(cache_key, expirySeconds, func) {
   //console.log(args);
   //cache_key = station + "_observation";
-
+console.log("here");
   let retval = this.get(cache_key);
-  if (retval) {
+  console.log(retval);
+  
+  // sometimes you get empty objects
+  if (retval  // 👈 null and undefined check 
+    && !( Object.keys(retval).length === 0 && retval.constructor === Object)) {
     return retval;
   }
 
   retval = func();
+  //retval could be a promise.
+ console.log('r')
+  let r = Promise.resolve(func()).then( (v) => { return v});
+  console.log('resolved promise');
+  console.log(r);
+  console.log("called func")
   console.log(retval);
   set(cache_key, retval, expirySeconds);
   return retval;

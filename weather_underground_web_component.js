@@ -9,11 +9,15 @@ import { T } from "./test.js";
 class WundergroundStation extends HTMLElement {
   constructor() {
     super();
+    this.station={};
+    this.observation={};
+    this.forecast={};
 
     const station = this.getAttribute("station");
     if (!station) {
       throw "station attribute is required";
     }
+    this.station.id=station;
 
     const api_key = this.getAttribute("api_key") || secret_api_key;
     if (!api_key) {
@@ -41,13 +45,14 @@ class WundergroundStation extends HTMLElement {
     if (!template) {
       throw "specified template " + template_id + " does not exist in the DOM ";
     }
+  
     this.template = template;
     this.attachShadow({ mode: "open" });
 
     this.templateContent = template.content;
     this.data = { api_key, station, units, locale };
     this.api_key = api_key;
-    this.station = station;
+    this.station.id = station;
 
     this.units = measure_units;
     this.locale = locale;
@@ -66,8 +71,9 @@ class WundergroundStation extends HTMLElement {
     this.refresh();
   } //connectedCallback
 
-   render_template(template) {
-    var ex = /{{(.+?)}}/;
+   
+  render_template(template) {
+    var ex = /{{\s*(.+?)\s*}}/;
     while (template.match(ex)) {
       const match = template.match(ex);
       const value = eval('this.' + match[1])
@@ -79,63 +85,70 @@ class WundergroundStation extends HTMLElement {
     }
     return template;
   }
-
   
   refresh() {
     //T.test();
     let templateContent = this.templateContent;
-
-    console.log(templateContent);
-    console.log(this.template.innerHTML);
     templateContent = this.template.innerHTML;
 
-    //this.fetchWeather();
-  // templateContent = Template.render(templateContent, this);
-    templateContent=this.render_template(templateContent);
-
-    console.log(templateContent);
+    this.fetchWeather();
+ //  templateContent = Template.render(templateContent, this);
+    //templateContent=this.render_template(templateContent);
 
     //this.shadowRoot.appendChild(templateContent.cloneNode(true));
     this.shadowRoot.innerHTML = templateContent;
     // now that I have the observation and the forecast I can go ahead and populate more of the dib
   }
 
-  // async fetchPwsObservation(station, units, api_key) {
-  //   const url =
-  //     "https://api.weather.com/v2/pws/observations/current?stationId=" +
-  //     station +
-  //     "&format=json&units=" +
-  //     units +
-  //     "&apiKey=" +
-  //     api_key;
-  //   const data = await this.makeApiCall(url);
-  //   return data.observations[0];
-  // }
-  // async fetchForecast(lat, lon, units, api_key) {
-  //   const url =
-  //     "https://api.weather.com/v3/wx/forecast/daily/5day?geocode=" +
-  //     lat +
-  //     "," +
-  //     lon +
-  //     "&format=json&language=en-US&units=" +
-  //     units +
-  //     "&apiKey=" +
-  //     api_key;
+ 
+   async fetchWeather() {
+    const cache_key = this.station.id + "_observation";
+       // I am not sure how often the updates are.
+    const cache_duration = Cache.ONE_MINUTE * 15;
+   //const cache_duration = Cache.NEVER;
+   //const observation = await Api.fetchPwsObservation(this.station.id, this.units.abbrev, this.api_key);
+   //console.log(observation);
+//    {
+//     "stationID": "ITAURA99",
+//     "obsTimeUtc": "2021-04-01T10:30:43Z",
+//     "obsTimeLocal": "2021-04-01 23:30:43",
+//     "neighborhood": "Whakamarama",
+//     "softwareType": null,
+//     "country": "NZ",
+//     "solarRadiation": null,
+//     "lon": 175.981,
+//     "realtimeFrequency": null,
+//     "epoch": 1617273043,
+//     "lat": -37.737,
+//     "uv": null,
+//     "winddir": 248,
+//     "humidity": 85,
+//     "qcStatus": -1,
+//     "metric": {
+//         "temp": 13,
+//         "heatIndex": 13,
+//         "dewpt": 10,
+//         "windChill": 13,
+//         "windSpeed": 3,
+//         "windGust": 3,
+//         "pressure": 1022.01,
+//         "precipRate": 0,
+//         "precipTotal": 0.25,
+//         "elev": 311
+//     }
+// }
+   //2021-04-01 23:30:07
+   //const obs = Api.fetchPwsObservation(this.ststation, units, api_key)
 
-  //   return await this.makeApiCall(url);
-  // }
-  async fetchWeather() {
-    const key = this.station + "_observation";
-    const station = this.station;
-    const units = this.units;
-    const api_key = this.api_key;
-
-    const obs = await Cache.memoize(key, Cache.NegativeInfinity, () => {
-      console.log(station);
-      Api.fetchPwsObservation(station, units, api_key);
+   
+    const obs =  Cache.memoize(cache_key, cache_duration, async () => {
+      const o = await Api.fetchPwsObservation(this.station.id, this.units.abbrev, this.api_key);
+      console.log(o)
+      return o
     });
     console.log(obs);
   }
+ 
   async fetchWeather_old() {
     const current = await Api.fetchPwsObservation(
       this.station,
