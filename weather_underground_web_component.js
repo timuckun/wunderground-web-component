@@ -138,14 +138,14 @@ class WundergroundStation extends HTMLElement {
 //     }
 // }
    //2021-04-01 23:30:07
-   //const obs = Api.fetchPwsObservation(this.ststation, units, api_key)
+   const obs = Api.fetchPwsObservation(this.station.id, this.units.abbrev, this.api_key)
 
    
-    const obs =  Cache.memoize(cache_key, cache_duration, async () => {
-      const o = await Api.fetchPwsObservation(this.station.id, this.units.abbrev, this.api_key);
-      console.log(o)
-      return o
-    });
+    //const obs =  Cache.memoize(cache_key, cache_duration, async () => {
+    //  const o = await Api.fetchPwsObservation(this.station.id, this.units.abbrev, this.api_key);
+     // console.log(o)
+     // return o
+    //});
     console.log(obs);
   }
  
