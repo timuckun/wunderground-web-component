@@ -17,8 +17,47 @@
     </script>
 
     <template id=wunderground-template>
-      <div>{{ station.id}}</div>
-     <div><a href="{{ station.url }}">{{station.name }}</a></div>   
+      <!-- I like tables, you do you :)-->
+      <table>
+        <tr>
+        <th>{{ station.id}}</th>
+        <th><a href="{{ station.url }}">{{station.neighborhood }} {{station.country}}</a></th>
+      </tr>
+      <tr><td>Time</td><td>{{observation.time}}</td></tr>
+      <tr><td>Humidity</td><td> {{observation.humidity}} %</td></tr>
+      <tr><td>Elevation</td><td>{{station.elevation}} {{units.alt}}</td></tr>
+      <tr><td>Dew Point</td><td>{{observation.dewPoint}} {{units.temp}}</td></tr>
+      <tr><td>Heat Index</td><td>{{observation.heatIndex}} {{units.temp}}</td></tr>
+      <tr><td>Precipatation Rate</td><td></td></tr>
+      <tr><td>Precipitation Total</td><td></td></tr>
+      <tr><td>Pressure</td><td></td></tr>
+      <tr><td>Temperture</td><td></td></tr>
+      <tr><td>Wind Chill</td><td></td></tr>
+      <tr><td>Wind Gust</td><td></td></tr>
+      <tr><td>Wind Speed</td><td></td></tr>
+      <tr><td></td><td></td></tr>
+      <tr><td></td><td></td></tr>
+
+
+        dewpt: 6
+elev: 311
+heatIndex: 8
+precipRate: 0
+precipTotal: 0
+pressure: 1023.03
+temp: 8
+windChill: 8
+windGust: 0
+windSpeed: 0
+
+      </table>
+      <div></div>
+     <div></div>  
+     <div>humidity: {{observation.humidity}} %</div> 
+     
+
+
+
      <div>{{units.temp}}</div>   
     </template>
 

@@ -10,8 +10,7 @@ class WundergroundStation extends HTMLElement {
   constructor() {
     super();
     this.station={};
-    this.observation={};
-    this.forecast={};
+    
 
     const station = this.getAttribute("station");
     if (!station) {
@@ -49,7 +48,7 @@ class WundergroundStation extends HTMLElement {
     this.template = template;
     this.attachShadow({ mode: "open" });
 
-    this.templateContent = template.content;
+    this.templateContent = template.innerHTML;
     this.data = { api_key, station, units, locale };
     this.api_key = api_key;
     this.station.id = station;
@@ -86,14 +85,19 @@ class WundergroundStation extends HTMLElement {
     return template;
   }
   
-  refresh() {
+  async refresh() {
+
+    await this.fetchWeather();
     //T.test();
     let templateContent = this.templateContent;
-    templateContent = this.template.innerHTML;
+    //console.log(this.template.innerHTML)
+    //console.log(this.templateContent)
+   // console.log(this.templateContent.innerHTML);
+    ///let templateContent = this.template.innerHTML;
 
-    this.fetchWeather();
- //  templateContent = Template.render(templateContent, this);
-    //templateContent=this.render_template(templateContent);
+  
+     //templateContent = Template.render(templateContent,this);
+    templateContent=this.render_template(templateContent);
 
     //this.shadowRoot.appendChild(templateContent.cloneNode(true));
     this.shadowRoot.innerHTML = templateContent;
@@ -105,7 +109,13 @@ class WundergroundStation extends HTMLElement {
     const cache_key = this.station.id + "_observation";
        // I am not sure how often the updates are.
     const cache_duration = Cache.ONE_MINUTE * 15;
-   //const cache_duration = Cache.NEVER;
+    const obs =  await this.memoize(cache_key, cache_duration, async () => {
+      return await Api.fetchPwsObservation(this.station.id, this.units.abbrev, this.api_key);
+     });
+     console.log(obs);
+      // map the metrics to the top level object to make more sense for the template rendering
+      this.setObservation(obs);   
+    //const cache_duration = Cache.NEVER;
    //const observation = await Api.fetchPwsObservation(this.station.id, this.units.abbrev, this.api_key);
    //console.log(observation);
 //    {
@@ -138,17 +148,82 @@ class WundergroundStation extends HTMLElement {
 //     }
 // }
    //2021-04-01 23:30:07
-   const obs = Api.fetchPwsObservation(this.station.id, this.units.abbrev, this.api_key)
+   //const obs = Api.fetchPwsObservation(this.station.id, this.units.abbrev, this.api_key)
 
    
-    //const obs =  Cache.memoize(cache_key, cache_duration, async () => {
-    //  const o = await Api.fetchPwsObservation(this.station.id, this.units.abbrev, this.api_key);
-     // console.log(o)
-     // return o
-    //});
-    console.log(obs);
+  
   }
+   setObservation(obs){
+
+    // This function extracts the data from the observation and  normalizes them
+    const h = {}
+    // Fist extract the station information
+    this.station.country=obs.country;
+    this.station.elevation=obs.metric.elev;
+    this.station.lat=obs.lat;
+    this.station.lon;
+    this.station.neighborhood=obs.neighborhood;
+
+    // Not used...
+  
+    // solarRadiation: null
+   // uv: null
+    //some data is at the root object
+
+   
+    h.heatIndex=obs.heatIndex;
+    h.humidity=obs.humidity;
+    h.temp=obs.temp;
+    const time=new Date(obs.obsTimeLocal);
+    h.time=Utils.formatDateTime(time, this.locale);
+    // obsTimeUtc: "2021-04-17T11:58:02Z"
+    h.precipRate=obs.precipRate;
+    h.precipTotal=obs.precipTotal;
+    h.pressure=obs.pressure;
+    h.solarRadiation=obs.solarRadiation;
+    h.uv=obs.uv;
+    h.windDirection=obs.windir; // wind direction is at the top level but speed is in metric
+    // qcStatus: 1
+
+    
+    // temp: 8
  
+    
+ 
+
+
+    // metric:
+    h.dewPoint=obs.metric.dewpt;
+    
+    // heatIndex: 8
+    // precipRate: 0
+    // precipTotal: 0
+    // pressure: 1023.03
+    // temp: 8
+    // windChill: 8
+    // windGust: 0
+    // windSpeed: 0
+    // __proto__: Object
+  
+    // obsTimeLocal: "2021-04-17 23:58:02"
+    // obsTimeUtc: "2021-04-17T11:58:02Z"
+    // precipRate: 0
+    // precipTotal: 0
+    // pressure: 1023.03
+    // qcStatus: 1
+    // realtimeFrequency: null
+    // softwareType: null
+    // solarRadiation: null
+    // stationID: "ITAURA99"
+    // temp: 8
+    // uv: null
+    // windChill: 8
+    // windGust: 0
+    // windSpeed: 0
+    // winddir: 225
+
+    this.observation=h;
+   }
   async fetchWeather_old() {
     const current = await Api.fetchPwsObservation(
       this.station,
@@ -172,20 +247,7 @@ class WundergroundStation extends HTMLElement {
     // this.setStationLink(neighborhood);
   }
 
-  setDateTime(datetime, locale = "en-NZ") {
-    const options = {
-      weekday: "short",
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-      hour: "numeric",
-      minute: "numeric",
-    };
 
-    const datestring = datetime.toLocaleDateString(locale, options);
-    const div = this.getElement(".wunderground_datetime");
-    div.innerHTML = datestring;
-  }
 
   setStationLink(desc) {
     const div = this.getElement(".wunderground_stationID");
@@ -211,6 +273,25 @@ class WundergroundStation extends HTMLElement {
   //   }
   //   return await response.json();
   // }
+
+  async memoize(cache_key, expirySeconds, func) {
+    //console.log(args);
+    //cache_key = station + "_observation";
+
+    let retval = Cache.get(cache_key);
+    
+    // sometimes you get empty objects
+    if (retval  // 👈 null and undefined check 
+      && !( Object.keys(retval).length === 0 && retval.constructor === Object)) {
+      return retval;
+    }
+  
+    retval = await func();
+    //retval could be a promise.
+    console.log(retval);
+    Cache.set(cache_key, retval, expirySeconds);
+    return retval;
+  }
 }
 
 customElements.define("wunderground-station", WundergroundStation);

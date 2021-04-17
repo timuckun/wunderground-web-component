@@ -39,30 +39,7 @@ export function set(key, value, expirySeconds) {
   console.log(str);
   localStorage[key] = str;
 }
-export function memoize(cache_key, expirySeconds, func) {
-  //console.log(args);
-  //cache_key = station + "_observation";
-console.log("here");
-  let retval = this.get(cache_key);
-  console.log(retval);
-  
-  // sometimes you get empty objects
-  if (retval  // 👈 null and undefined check 
-    && !( Object.keys(retval).length === 0 && retval.constructor === Object)) {
-    return retval;
-  }
 
-  retval = func();
-  //retval could be a promise.
- console.log('r')
-  let r = Promise.resolve(func()).then( (v) => { return v});
-  console.log('resolved promise');
-  console.log(r);
-  console.log("called func")
-  console.log(retval);
-  set(cache_key, retval, expirySeconds);
-  return retval;
-}
 
 function memoize_2(cache_key, expirySeconds, func, args) {
   console.log(args);

@@ -106,6 +106,21 @@ export function F_to_C  (degreee) {
       },
     }
 
+    export function formatDateTime(dateTime, locale= "en-NZ"){
+        const options = {
+          weekday: "short",
+          year: "numeric",
+          month: "short",
+          day: "numeric",
+          hour: "numeric",
+          minute: "numeric",
+        };
+    
+        const datestring = dateTime.toLocaleDateString(locale, options);
+        return datestring
+      
+
+    }
 		
   // export function lookup_units(units) {
   //   const unit_map = {

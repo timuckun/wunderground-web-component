@@ -1,29 +1,12 @@
-//  async function makeApiCall(url) {
-//   const response = await fetch(url);
-//   if (!response.ok) {
-//     throw new Error("Network response was not ok");
-//   }
-//   return response.json();
-// }
-function makeApiCall(url) {
-  let retval;
-  let x = fetch('url')
-  .then(function(response) {
-    if (!response.ok) {
-      throw new Error("HTTP error, status = " + response.status);
-    }
-    return response.json();
-  })
-  .then(function(json) {
-    return json
-    })
-    console.log(x)
-    let y = Promise.all([x])
-    console.log(y);
-    y = Promise.all([x]).then(values => console.log(values));
-    console.log(y)
+async function makeApiCall(url) {
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error("Network response was not ok");
+  }
+  return await response.json();
 }
-export  function fetchPwsObservation(station, units, api_key) {
+
+export async function fetchPwsObservation(station, units, api_key) {
   const url =
     "https://api.weather.com/v2/pws/observations/current?stationId=" +
     station +
@@ -31,15 +14,8 @@ export  function fetchPwsObservation(station, units, api_key) {
     units +
     "&apiKey=" +
     api_key;
-  var data="";
-  let d2;
-   d2=makeApiCall(url).then(value => value);
-   console.log('d2');
-   console.log(d2);
-   console.log(Promise.resolve(d2));
-   console.log('data')
-   console.log(data);
-  //return data.observations[0];
+  const data = await makeApiCall(url);
+  return data.observations[0];
 }
 
 export async function fetchForecast(lat, lon, units, api_key) {
